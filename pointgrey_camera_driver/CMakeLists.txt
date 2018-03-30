@@ -14,15 +14,19 @@ generate_dynamic_reconfigure_options(
 catkin_package(CATKIN_DEPENDS
   image_exposure_msgs nodelet roscpp sensor_msgs wfov_camera_msgs
 )
+#SET(POINTGREY_LIB /home/odroid/Downloads/flycapture.2.12.3.2_armhf/lib)
+#SET(POINTGREY_INCLUDE_DIR /home/odroid/Downloads/flycapture.2.12.3.2_armhf/include)
 
 # If flycapture is already present, use the found version. If not, download it.
 # We can't resolve this dependency using the usual rosdep means because
 # the Point Grey EULA prohibits redistributing the headers or the packages which
 # contains them. We work around this by downloading the archive directly from
 # their website during this step in the build process.
-find_library(POINTGREY_LIB NAMES libflycapture.so.2 flycapture)
-find_path(POINTGREY_INCLUDE_DIR NAMES flycapture/FlyCapture2.h)
-file(GLOB_RECURSE POINTGREY_HEADER ${POINTGREY_INCLUDE_DIR}*/flycapture/FlyCapture2.h ${CMAKE_CURRENT_BINARY_DIR}/usr/include*/flycapture/FlyCapture2.h)
+find_library(POINTGREY_LIB NAMES libflycapture.so.2 flycapture PATHS /home/odroid/Downloads/flycapture.2.12.3.2_armhf/lib)
+message(${POINTGREY_LIB})
+find_path(POINTGREY_INCLUDE_DIR NAMES FlyCapture2.h PATHS /home/odroid/Downloads/flycapture.2.12.3.2_armhf/include)
+message(STATUS ${POINTGREY_INCLUDE_DIR})
+file(GLOB_RECURSE POINTGREY_HEADER ${POINTGREY_INCLUDE_DIR}*/FlyCapture2.h ${CMAKE_CURRENT_BINARY_DIR}/usr/include*/flycapture/FlyCapture2.h)
 
 if(NOT POINTGREY_LIB OR NOT POINTGREY_HEADER)
   # flycapture not present, must download.
@@ -36,7 +40,7 @@ else()
   if(${SUBSTR_INDEX} EQUAL 0)
     # found flycapture, but it's already in our build space; we're reconfiguring.
     message(STATUS "libflycapture found in: ${POINTGREY_LIB}")
-    set(POINTGREY_INCLUDE_DIR "${CMAKE_CURRENT_BINARY_DIR}/usr/include")
+    #set(POINTGREY_INCLUDE_DIR "${CMAKE_CURRENT_BINARY_DIR}/usr/include")
   else()
     # copy it into the build directory/resolving all symlinks
     message(STATUS "libflycapture found in system library path")
